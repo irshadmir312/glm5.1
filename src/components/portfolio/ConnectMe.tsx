@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import {
   Phone, Mail, MapPin, CheckCircle2, Loader2,
-  Send, MessageCircle, User, ExternalLink,
+  Send, MessageCircle, User, ExternalLink, AlertTriangle,
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -65,6 +65,7 @@ const contactCards = [
 export default function ConnectMe() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const ref = useRef<HTMLElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
@@ -80,18 +81,29 @@ export default function ConnectMe() {
 
   async function onSubmit(data: ContactFormData) {
     setIsSubmitting(true)
+    setSubmitError(null)
     try {
       const res = await fetch('/api/contact-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
-      if (!res.ok) throw new Error('Failed to send message')
+      const result = await res.json()
+
+      if (!res.ok) {
+        // Check for SMTP not configured error
+        if (result.code === 'SMTP_NOT_CONFIGURED') {
+          setSubmitError('Email service is being set up. Please contact me via WhatsApp for now.')
+        } else {
+          setSubmitError(result.error || 'Failed to send message. Please try again.')
+        }
+        return
+      }
       setSubmitSuccess(true)
       form.reset()
       setTimeout(() => setSubmitSuccess(false), 5000)
     } catch {
-      // Error handled silently — toast is not critical
+      setSubmitError('Network error. Please check your connection and try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -271,6 +283,23 @@ export default function ConnectMe() {
                     />
 
                     {/* Submit Button */}
+                    {submitError && (
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                        <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-sm text-amber-300">{submitError}</p>
+                          <a
+                            href="https://wa.me/919622334883?text=Hi%20Irshad!%20I%20tried%20contacting%20from%20your%20portfolio."
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-emerald-400 hover:underline mt-1 inline-block"
+                          >
+                            Chat on WhatsApp instead →
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
                     <Button
                       type="submit"
                       disabled={isSubmitting || submitSuccess}

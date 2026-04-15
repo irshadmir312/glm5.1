@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
 
 const MODE_PROMPTS: Record<string, string> = {
@@ -40,17 +39,35 @@ const SYSTEM_PROMPT = `You are the digital clone of Irshad Majeed Mir — an AI/
 
 Always respond as if you ARE Irshad, using "I" and "my" pronouns. Never break character.`
 
-async function checkRateLimit(userId: string): Promise<boolean> {
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
-  const recentCount = await db.chatMessage.count({
-    where: {
-      userId,
-      role: 'user',
-      createdAt: { gte: fiveMinutesAgo },
-    },
-  })
-  return recentCount < 20
+// Simple in-memory rate limiting for serverless (per-instance)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(userId)
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + 5 * 60 * 1000 })
+    return true
+  }
+
+  if (entry.count >= 20) {
+    return false
+  }
+
+  entry.count++
+  return true
 }
+
+// Clean up old entries periodically
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetAt) {
+      rateLimitMap.delete(key)
+    }
+  }
+}, 60000)
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,23 +81,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Rate limit check
-    const isAllowed = await checkRateLimit(userId)
+    // Rate limit check (in-memory, per-instance)
+    const isAllowed = checkRateLimit(userId)
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please wait a moment before sending more messages.' },
         { status: 429 }
       )
     }
-
-    // Save user message
-    await db.chatMessage.create({
-      data: {
-        userId,
-        role: 'user',
-        content: message,
-      },
-    })
 
     // Build the system prompt with mode-specific instructions
     const modeInstruction = MODE_PROMPTS[mode] || MODE_PROMPTS.explorer
@@ -108,35 +116,6 @@ export async function POST(req: NextRequest) {
     const aiResponseText = typeof response === 'string'
       ? response
       : response?.content || response?.message?.content || JSON.stringify(response)
-
-    // Save AI response
-    await db.chatMessage.create({
-      data: {
-        userId,
-        role: 'assistant',
-        content: aiResponseText,
-      },
-    })
-
-    // Track interaction for gamification
-    try {
-      await db.userInteraction.create({
-        data: {
-          userId,
-          section: 'ai-chat',
-          action: 'message',
-          metadata: JSON.stringify({ mode }),
-        },
-      })
-
-      // Award XP for chatting
-      await db.user.update({
-        where: { id: userId },
-        data: { xp: { increment: 2 } },
-      })
-    } catch {
-      // Non-critical: gamification tracking shouldn't fail the chat
-    }
 
     return NextResponse.json({
       message: aiResponseText,

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 
 interface QuizQuestion {
   id: number
@@ -134,15 +133,15 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
 ]
 
-// POST /api/quiz/submit — submit answers
+// POST /api/quiz/submit — submit answers (no DB, just grade and return results)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { userId, answers } = body
+    const { answers } = body
 
-    if (!userId || !answers || !Array.isArray(answers)) {
+    if (!answers || !Array.isArray(answers)) {
       return NextResponse.json(
-        { error: 'Missing required fields: userId and answers array' },
+        { error: 'Missing required field: answers array' },
         { status: 400 }
       )
     }
@@ -179,42 +178,11 @@ export async function POST(req: NextRequest) {
     const total = QUIZ_QUESTIONS.length
     const percentage = Math.round((score / total) * 100)
 
-    // Save quiz attempt
-    const quizAttempt = await db.quizAttempt.create({
-      data: {
-        userId,
-        quizId: 'ai-ml-ds-2026',
-        score,
-        total,
-        answers: JSON.stringify(answers),
-      },
-    })
-
-    // Award XP based on score
+    // Calculate XP (client will track this)
     const xpEarned = score * 5 + (percentage >= 80 ? 20 : percentage >= 60 ? 10 : 0)
-    await db.user.update({
-      where: { id: userId },
-      data: { xp: { increment: xpEarned } },
-    })
-
-    // Track interaction
-    await db.userInteraction.create({
-      data: {
-        userId,
-        section: 'quiz',
-        action: 'complete',
-        metadata: JSON.stringify({
-          quizId: 'ai-ml-ds-2026',
-          score,
-          total,
-          percentage,
-        }),
-      },
-    })
 
     return NextResponse.json({
       success: true,
-      quizAttemptId: quizAttempt.id,
       score,
       total,
       percentage,

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
 
 const PROPOSAL_SYSTEM_PROMPT = `You are an AI assistant for Irshad Majeed Mir's portfolio website. A visitor has submitted a contact/project inquiry. Generate a professional, personalized project proposal response.
@@ -25,7 +24,7 @@ Keep the proposal under 400 words. Format with clear sections using markdown. Be
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { userId, name, email, budget, projectType, timeline, message } = body
+    const { name, email, budget, projectType, timeline, message } = body
 
     if (!name || !email || !message) {
       return NextResponse.json(
@@ -57,46 +56,9 @@ Please provide a professional, tailored project proposal.`
       ? aiResponse
       : aiResponse?.content || aiResponse?.message?.content || JSON.stringify(aiResponse)
 
-    // Save contact request to database
-    const contactRequest = await db.contactRequest.create({
-      data: {
-        userId: userId || null,
-        name,
-        email,
-        budget: budget || null,
-        projectType: projectType || null,
-        timeline: timeline || null,
-        message,
-        proposal,
-      },
-    })
-
-    // Track XP if userId provided
-    if (userId) {
-      try {
-        await db.userInteraction.create({
-          data: {
-            userId,
-            section: 'contact',
-            action: 'submit',
-            metadata: JSON.stringify({ contactRequestId: contactRequest.id }),
-          },
-        })
-
-        // Award XP for contact submission
-        await db.user.update({
-          where: { id: userId },
-          data: { xp: { increment: 15 } },
-        })
-      } catch {
-        // Non-critical
-      }
-    }
-
     return NextResponse.json({
       success: true,
       proposal,
-      contactRequestId: contactRequest.id,
     })
   } catch (error) {
     console.error('Contact API error:', error)

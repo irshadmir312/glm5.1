@@ -1,34 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 
-// POST /api/auth/guest — create guest user
+// POST /api/auth/guest — create guest user (no DB, return mock guest)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { name } = body
-
     const guestName = name || `Explorer_${Math.random().toString(36).substring(2, 8)}`
-
-    const guest = await db.user.create({
-      data: {
-        name: guestName,
-        isGuest: true,
-        mode: 'explorer',
-      },
-    })
+    const guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
 
     return NextResponse.json({
       success: true,
       user: {
-        id: guest.id,
-        name: guest.name,
-        email: guest.email,
-        isGuest: guest.isGuest,
-        mode: guest.mode,
-        xp: guest.xp,
-        level: guest.level,
-        badges: JSON.parse(guest.badges),
-        createdAt: guest.createdAt,
+        id: guestId,
+        name: guestName,
+        email: null,
+        isGuest: true,
+        mode: 'explorer',
+        xp: 0,
+        level: 1,
+        badges: [],
+        createdAt: new Date().toISOString(),
       },
     })
   } catch (error) {

@@ -1,7 +1,9 @@
 import NextAuth from 'next-auth'
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { db } from '@/lib/db'
+
+// Simple in-memory user store for demo authentication (works on Vercel)
+const users = new Map<string, { id: string; name: string; email: string }>()
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,19 +20,16 @@ export const authOptions: NextAuthOptions = {
 
         // Demo authentication: just check non-empty fields
         try {
-          let user = await db.user.findUnique({
-            where: { email: credentials.email },
-          })
+          let user = users.get(credentials.email)
 
           if (!user) {
-            // Create new user if doesn't exist
-            user = await db.user.create({
-              data: {
-                email: credentials.email,
-                name: credentials.email.split('@')[0],
-                isGuest: false,
-              },
-            })
+            // Create new user if doesn't exist (in-memory)
+            user = {
+              id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+              name: credentials.email.split('@')[0],
+              email: credentials.email,
+            }
+            users.set(credentials.email, user)
           }
 
           return {
