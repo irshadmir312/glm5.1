@@ -2,63 +2,72 @@
 
 import { useRef, useEffect, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { TrendingUp, Zap, Rocket, Quote } from 'lucide-react'
+import { TrendingUp, Zap, Rocket, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface ValueCard {
+  title: string
+  impactNumber: number
+  impactPrefix: string
+  impactSuffix: string
   problem: string
   solution: string
-  impact: string
-  impactNumber: number
-  impactSuffix: string
+  cta: string
+  ctaHref: string
   icon: typeof TrendingUp
   color: string
   bgColor: string
   borderColor: string
-  quote: string
 }
 
 const values: ValueCard[] = [
   {
-    problem: 'Businesses drowning in data but starving for insights.',
-    solution: 'ML-powered analytics pipelines that turn raw data into actionable intelligence.',
-    impact: 'Better data-driven decisions',
+    title: '40% Reduction in Processing Time',
     impactNumber: 40,
+    impactPrefix: '',
     impactSuffix: '%',
-    icon: TrendingUp,
+    problem: 'Data team spending 8+ hours on manual batch processing every day.',
+    solution: 'Automated ML pipeline with parallel processing, intelligent caching, and real-time monitoring.',
+    cta: 'View Case Study →',
+    ctaHref: '#case-studies',
+    icon: Zap,
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/5',
     borderColor: 'border-emerald-500/20',
-    quote: 'Data is the new oil, but only if you can refine it. I build the refineries.',
   },
   {
-    problem: 'Manual processes that waste time, money, and human potential.',
-    solution: 'Automated AI systems that handle repetitive tasks at scale with precision.',
-    impact: 'Increase in operational efficiency',
-    impactNumber: 10,
-    impactSuffix: 'x',
-    icon: Zap,
+    title: '₹15L Saved Annually on Fraud',
+    impactNumber: 15,
+    impactPrefix: '₹',
+    impactSuffix: 'L',
+    problem: 'Client losing ₹5L/month to undetected fraudulent transactions.',
+    solution: 'XGBoost + Neural Network ensemble with real-time feature engineering.',
+    cta: 'See the Project →',
+    ctaHref: '#projects',
+    icon: TrendingUp,
     color: 'text-cyan-400',
     bgColor: 'bg-cyan-500/5',
     borderColor: 'border-cyan-500/20',
-    quote: 'Automation isn\'t about replacing humans — it\'s about amplifying their capabilities.',
   },
   {
-    problem: 'Fragmented teams building disconnected systems that never ship.',
-    solution: 'End-to-end full stack + AI development from prototype to production deployment.',
-    impact: 'Faster time-to-market',
-    impactNumber: 60,
+    title: '58% Increase in Conversion Rate',
+    impactNumber: 58,
+    impactPrefix: '',
     impactSuffix: '%',
+    problem: 'E-commerce platform stuck at 12% conversion — users couldn\'t find relevant products.',
+    solution: 'Real-time personalization engine serving 10K+ recommendations/second.',
+    cta: 'Explore Demo →',
+    ctaHref: '#projects',
     icon: Rocket,
     color: 'text-purple-400',
     bgColor: 'bg-purple-500/5',
     borderColor: 'border-purple-500/20',
-    quote: 'Great products aren\'t built in silos. They\'re crafted by engineers who see the full picture.',
   },
 ]
 
-function AnimatedCounter({ target, suffix }: { target: number; suffix: string }) {
+function AnimatedCounter({ target, prefix, suffix, color }: { target: number; prefix: string; suffix: string; color: string }) {
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: true })
@@ -85,8 +94,7 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
   return (
     <span ref={ref} className="text-4xl sm:text-5xl font-bold font-mono">
-      {suffix === 'x' ? count.toFixed(1) : Math.round(count)}
-      <span className={suffix === '%' ? 'text-emerald-400' : 'text-cyan-400'}>{suffix}</span>
+      {prefix}{suffix === 'L' ? count.toFixed(0) : Math.round(count)}<span className={color}>{suffix}</span>
     </span>
   )
 }
@@ -95,8 +103,15 @@ export default function WhyHireMe() {
   const ref = useRef<HTMLElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
+  const handleCTA = (href: string) => {
+    const el = document.querySelector(href)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
-    <section ref={ref} className="relative py-20 sm:py-28">
+    <section id="why-hire-me" ref={ref} className="relative py-20 sm:py-28">
       <div className="absolute inset-0 dot-pattern opacity-20" />
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -119,19 +134,19 @@ export default function WhyHireMe() {
 
             return (
               <motion.div
-                key={value.problem}
+                key={value.title}
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 0.1 + i * 0.15, duration: 0.6 }}
               >
-                <Card className={`glass h-full overflow-hidden card-hover ${value.borderColor}`}>
+                <Card className={`glass h-full overflow-hidden card-hover ${value.borderColor} flex flex-col`}>
                   {/* Impact Number */}
                   <div className={`p-6 sm:p-8 ${value.bgColor}`}>
-                    <AnimatedCounter target={value.impactNumber} suffix={value.impactSuffix} />
-                    <p className="text-sm text-muted-foreground mt-1">{value.impact}</p>
+                    <AnimatedCounter target={value.impactNumber} prefix={value.impactPrefix} suffix={value.impactSuffix} color={value.color} />
+                    <p className="text-sm font-semibold text-foreground mt-2">{value.title}</p>
                   </div>
 
-                  <div className="p-5 sm:p-6 space-y-4">
+                  <div className="p-5 sm:p-6 space-y-4 flex-1 flex flex-col">
                     {/* Icon */}
                     <div className={`w-10 h-10 rounded-lg ${value.bgColor} flex items-center justify-center`}>
                       <Icon className={`w-5 h-5 ${value.color}`} />
@@ -153,14 +168,16 @@ export default function WhyHireMe() {
                       <p className="text-sm text-foreground">{value.solution}</p>
                     </div>
 
-                    {/* Quote */}
-                    <div className="pt-3 border-t border-white/5">
-                      <div className="flex gap-2">
-                        <Quote className={`w-4 h-4 ${value.color} shrink-0 mt-0.5`} />
-                        <p className="text-xs text-muted-foreground italic leading-relaxed">
-                          {value.quote}
-                        </p>
-                      </div>
+                    {/* CTA Button */}
+                    <div className="mt-auto pt-3 border-t border-white/5">
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleCTA(value.ctaHref)}
+                        className={`w-full justify-center gap-2 text-sm font-medium ${value.color} hover:${value.bgColor} group`}
+                      >
+                        {value.cta}
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </Button>
                     </div>
                   </div>
                 </Card>

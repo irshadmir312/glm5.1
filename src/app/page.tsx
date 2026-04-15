@@ -4,15 +4,21 @@ import { useEffect } from 'react'
 import ParticleBackground from '@/components/portfolio/ParticleBackground'
 import Navigation from '@/components/portfolio/Navigation'
 import HeroSection from '@/components/portfolio/HeroSection'
+import PersonalStory from '@/components/portfolio/PersonalStory'
 import ModeSelector from '@/components/portfolio/ModeSelector'
 import JourneyMap from '@/components/portfolio/JourneyMap'
 import ProjectLab from '@/components/portfolio/ProjectLab'
+import CaseStudies from '@/components/portfolio/CaseStudies'
+import Services from '@/components/portfolio/Services'
 import WhyHireMe from '@/components/portfolio/WhyHireMe'
 import KillerQuotes from '@/components/portfolio/KillerQuotes'
 import IslamicQuotes from '@/components/portfolio/IslamicQuotes'
 import SkillsShowcase from '@/components/portfolio/SkillsShowcase'
+import Certifications from '@/components/portfolio/Certifications'
 import LiveDashboard from '@/components/portfolio/LiveDashboard'
 import SkillTesting from '@/components/portfolio/SkillTesting'
+import Testimonials from '@/components/portfolio/Testimonials'
+import BlogInsights from '@/components/portfolio/BlogInsights'
 import GamificationPanel from '@/components/portfolio/GamificationPanel'
 import ConnectMe from '@/components/portfolio/ConnectMe'
 import AIChatBot from '@/components/portfolio/AIChatBot'
@@ -37,6 +43,10 @@ export default function Home() {
 
         <div className="divider-gradient" />
 
+        <PersonalStory />
+
+        <div className="divider-gradient" />
+
         <ModeSelector />
 
         <div className="divider-gradient" />
@@ -46,6 +56,14 @@ export default function Home() {
         <div className="divider-gradient" />
 
         <ProjectLab />
+
+        <div className="divider-gradient" />
+
+        <CaseStudies />
+
+        <div className="divider-gradient" />
+
+        <Services />
 
         <div className="divider-gradient" />
 
@@ -65,11 +83,23 @@ export default function Home() {
 
         <div className="divider-gradient" />
 
+        <Certifications />
+
+        <div className="divider-gradient" />
+
         <LiveDashboard />
 
         <div className="divider-gradient" />
 
         <SkillTesting />
+
+        <div className="divider-gradient" />
+
+        <Testimonials />
+
+        <div className="divider-gradient" />
+
+        <BlogInsights />
 
         <div className="divider-gradient" />
 

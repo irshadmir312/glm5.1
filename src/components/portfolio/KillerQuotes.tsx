@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
-import { Flame, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { Sparkles, RefreshCw } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -44,39 +44,35 @@ function getQuoteOfTheDay(): Quote {
   return quotes[seed % quotes.length]
 }
 
+function getRandomQuote(excludeIndex: number): { quote: Quote; index: number } {
+  let newIndex: number
+  do {
+    newIndex = Math.floor(Math.random() * quotes.length)
+  } while (newIndex === excludeIndex && quotes.length > 1)
+  return { quote: quotes[newIndex], index: newIndex }
+}
+
 export default function KillerQuotes() {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState(1)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const ref = useRef<HTMLElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   const quoteOfTheDay = getQuoteOfTheDay()
-  const currentQuote = quotes[currentIndex]
+  const qotdIndex = quotes.indexOf(quoteOfTheDay)
 
-  const goNext = useCallback(() => {
-    setDirection(1)
-    setCurrentIndex((prev) => (prev + 1) % quotes.length)
-  }, [])
+  const [displayedQuote, setDisplayedQuote] = useState(quoteOfTheDay)
+  const [displayedIndex, setDisplayedIndex] = useState(qotdIndex)
+  const [clickCount, setClickCount] = useState(1)
+  const [isAnimating, setIsAnimating] = useState(false)
 
-  const goPrev = useCallback(() => {
-    setDirection(-1)
-    setCurrentIndex((prev) => (prev - 1 + quotes.length) % quotes.length)
-  }, [])
-
-  useEffect(() => {
-    if (!isInView) return
-    intervalRef.current = setInterval(goNext, 5000)
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [isInView, goNext])
-
-  const slideVariants = {
-    enter: (d: number) => ({ x: d > 0 ? 200 : -200, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (d: number) => ({ x: d > 0 ? -200 : 200, opacity: 0 }),
-  }
+  const handleNewQuote = useCallback(() => {
+    if (isAnimating) return
+    setIsAnimating(true)
+    const { quote, index } = getRandomQuote(displayedIndex)
+    setDisplayedQuote(quote)
+    setDisplayedIndex(index)
+    setClickCount((prev) => (prev % quotes.length) + 1)
+    setTimeout(() => setIsAnimating(false), 400)
+  }, [displayedIndex, isAnimating])
 
   return (
     <section id="quotes" ref={ref} className="relative py-20 sm:py-28">
@@ -97,12 +93,12 @@ export default function KillerQuotes() {
           </p>
         </motion.div>
 
-        {/* Quote of the Day */}
+        {/* Quote of the Day - Featured Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.1, duration: 0.6 }}
-          className="mb-12"
+          className="mb-8"
         >
           <div className="flex items-center gap-2 mb-4 justify-center">
             <Sparkles className="w-5 h-5 text-amber-400" />
@@ -111,92 +107,46 @@ export default function KillerQuotes() {
             </h3>
             <Sparkles className="w-5 h-5 text-amber-400" />
           </div>
-          <Card
-            className="relative overflow-hidden max-w-2xl mx-auto p-8 sm:p-10 text-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(236,72,153,0.06) 50%, rgba(168,85,247,0.08) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(249,115,22,0.2)',
-              boxShadow: '0 0 30px rgba(249,115,22,0.1), 0 0 60px rgba(236,72,153,0.05)',
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-pink-500/5" />
-            <div className="relative z-10">
-              <span className="text-4xl mb-4 block">{quoteOfTheDay.emoji}</span>
-              <p className="text-lg sm:text-xl font-semibold text-foreground leading-relaxed mb-4 italic">
-                &ldquo;{quoteOfTheDay.text}&rdquo;
-              </p>
-              <Badge
-                variant="outline"
-                className={categoryColors[quoteOfTheDay.category].badge}
-              >
-                {quoteOfTheDay.category}
-              </Badge>
-            </div>
-          </Card>
-        </motion.div>
 
-        {/* Auto-rotating Carousel */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="mb-12"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-orange-400" />
-              <h3 className="text-lg font-semibold">Now Playing</h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={goPrev}
-                className="h-8 w-8 text-muted-foreground hover:text-orange-400"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-xs font-mono text-muted-foreground">
-                {currentIndex + 1} / {quotes.length}
-              </span>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={goNext}
-                className="h-8 w-8 text-muted-foreground hover:text-orange-400"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-xl">
-            <AnimatePresence initial={false} custom={direction} mode="wait">
+          <div className="relative overflow-hidden max-w-2xl mx-auto">
+            <AnimatePresence mode="wait">
               <motion.div
-                key={currentIndex}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
+                key={displayedIndex}
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
               >
                 <Card
-                  className={`p-6 sm:p-8 ${categoryColors[currentQuote.category].bg} ${categoryColors[currentQuote.category].border}`}
+                  className="relative overflow-hidden p-8 sm:p-10 text-center"
+                  style={{
+                    background: `linear-gradient(135deg, ${
+                      displayedQuote.category === 'Flirty' ? 'rgba(236,72,153,0.08)'
+                      : displayedQuote.category === 'Rude' ? 'rgba(239,68,68,0.08)'
+                      : displayedQuote.category === 'Savage' ? 'rgba(249,115,22,0.08)'
+                      : 'rgba(168,85,247,0.08)'
+                    } 0%, rgba(255,255,255,0.02) 50%, rgba(249,115,22,0.06) 100%)`,
+                    backdropFilter: 'blur(20px)',
+                    border: `1px solid ${categoryColors[displayedQuote.category].border.replace('border-', '').replace('/20', '/30')}`,
+                    boxShadow: '0 0 30px rgba(249,115,22,0.1), 0 0 60px rgba(236,72,153,0.05)',
+                  }}
                 >
-                  <div className="flex items-start gap-4">
-                    <span className="text-3xl sm:text-4xl shrink-0">{currentQuote.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-base sm:text-lg font-semibold text-foreground leading-relaxed mb-3">
-                        &ldquo;{currentQuote.text}&rdquo;
-                      </p>
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-pink-500/5" />
+                  <div className="relative z-10">
+                    <span className="text-5xl mb-5 block">{displayedQuote.emoji}</span>
+                    <p className="text-lg sm:text-xl font-semibold text-foreground leading-relaxed mb-5 italic">
+                      &ldquo;{displayedQuote.text}&rdquo;
+                    </p>
+                    <div className="flex items-center justify-center gap-3 mb-4">
                       <Badge
                         variant="outline"
-                        className={categoryColors[currentQuote.category].badge}
+                        className={categoryColors[displayedQuote.category].badge}
                       >
-                        {currentQuote.category}
+                        {displayedQuote.category}
                       </Badge>
+                      <span className="text-xs font-mono text-muted-foreground">
+                        Quote {clickCount} of {quotes.length}
+                      </span>
                     </div>
                   </div>
                 </Card>
@@ -205,42 +155,25 @@ export default function KillerQuotes() {
           </div>
         </motion.div>
 
-        {/* Grid of All Quotes */}
+        {/* Generate New Quote Button */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.3, duration: 0.6 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="flex flex-col items-center gap-3"
         >
-          <h3 className="text-lg font-semibold mb-6 text-center">All Quotes</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {quotes.map((quote, i) => {
-              const colors = categoryColors[quote.category]
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.3 + i * 0.04, duration: 0.4 }}
-                >
-                  <Card
-                    className={`p-4 card-hover ${colors.bg} ${colors.border} cursor-default`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-xl shrink-0">{quote.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground leading-relaxed mb-2">
-                          &ldquo;{quote.text}&rdquo;
-                        </p>
-                        <Badge variant="outline" className={`text-[10px] ${colors.badge}`}>
-                          {quote.category}
-                        </Badge>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </div>
+          <Button
+            onClick={handleNewQuote}
+            disabled={isAnimating}
+            variant="outline"
+            className="gap-2 border-orange-500/30 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300"
+          >
+            <RefreshCw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
+            Generate New Quote
+          </Button>
+          <span className="text-xs text-muted-foreground/50">
+            Click to discover another killer quote
+          </span>
         </motion.div>
       </div>
     </section>

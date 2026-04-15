@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Play, ChevronDown, Terminal, Bot, Database, Code2, BrainCircuit } from 'lucide-react'
+import { ArrowRight, Sparkles, Download, ChevronDown, Terminal, Bot, Database, Code2, BrainCircuit, Globe2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { usePortfolioStore } from '@/store/portfolio'
+import { Badge } from '@/components/ui/badge'
 
 const titles = [
   'Irshad Majeed Mir',
@@ -14,8 +15,8 @@ const titles = [
 ]
 
 const stats = [
-  { label: 'Years', value: 5, suffix: '+' },
-  { label: 'Projects', value: 50, suffix: '+' },
+  { label: 'Years', value: 2, suffix: '+' },
+  { label: 'Projects', value: 15, suffix: '+' },
   { label: 'Clients', value: 10, suffix: '+' },
 ]
 
@@ -140,7 +141,7 @@ export default function HeroSection() {
               transition={{ delay: 0.4 }}
               className="text-lg sm:text-xl text-muted-foreground mb-3"
             >
-              AI/ML Engineer &amp; Data Scientist
+              AI/ML Engineer building real-world AI systems &amp; intelligent chatbots for businesses
             </motion.p>
 
             <motion.p
@@ -149,8 +150,7 @@ export default function HeroSection() {
               transition={{ delay: 0.5 }}
               className="text-sm sm:text-base text-muted-foreground/70 mb-8 max-w-lg"
             >
-              Building intelligent systems that transform data into decisions.
-              From fraud detection to NLP pipelines — I architect end-to-end AI solutions.
+              From Sopur, Kashmir to building AI solutions that impact businesses globally. Specializing in fraud detection, NLP pipelines, recommendation engines, and full-stack AI applications.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -158,7 +158,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="flex flex-wrap gap-3 mb-10"
+              className="flex flex-wrap gap-3 mb-4"
             >
               <Button
                 onClick={scrollToProjects}
@@ -167,6 +167,15 @@ export default function HeroSection() {
               >
                 Explore My Work
                 <ArrowRight className="w-4 h-4" />
+              </Button>
+              <Button
+                href="#"
+                size="lg"
+                variant="outline"
+                className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Download Resume
               </Button>
               <Button
                 onClick={() => setChatOpen(true)}
@@ -179,11 +188,28 @@ export default function HeroSection() {
               </Button>
             </motion.div>
 
-            {/* Stats */}
+            {/* Available Badge */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
+              className="mb-10"
+            >
+              <Badge
+                variant="outline"
+                className="gap-1.5 text-xs border-cyan-500/30 text-cyan-400 bg-cyan-500/5 px-3 py-1.5"
+              >
+                <Globe2 className="w-3 h-3" />
+                Available for UK &amp; Remote Roles
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              </Badge>
+            </motion.div>
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
               className="flex gap-8"
             >
               {stats.map((stat) => (

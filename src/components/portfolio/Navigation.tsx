@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, MessageSquare, Trophy, Zap, ChevronDown } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Menu, MessageSquare, Trophy, Zap, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
@@ -16,10 +16,14 @@ import { usePortfolioStore, type ViewMode } from '@/store/portfolio'
 
 const navLinks = [
   { label: 'Home', href: '#hero' },
+  { label: 'About', href: '#about' },
   { label: 'Journey', href: '#journey' },
   { label: 'Projects', href: '#projects' },
+  { label: 'Case Studies', href: '#case-studies' },
+  { label: 'Services', href: '#services' },
   { label: 'Skills', href: '#skills' },
-  { label: 'Quotes', href: '#quotes' },
+  { label: 'Testimonials', href: '#testimonials' },
+  { label: 'Blog', href: '#blog' },
   { label: 'Contact', href: '#contact' },
 ]
 
@@ -91,7 +95,7 @@ export default function Navigation() {
         </motion.div>
 
         {/* Center Nav Links (Desktop) */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden xl:flex items-center gap-1">
           {navLinks.map((link) => (
             <button
               key={link.href}
@@ -174,7 +178,7 @@ export default function Navigation() {
 
           {/* Mobile Menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild className="md:hidden">
+            <SheetTrigger asChild className="xl:hidden">
               <Button size="icon" variant="ghost" className="text-muted-foreground">
                 <Menu className="w-5 h-5" />
               </Button>
@@ -192,8 +196,8 @@ export default function Navigation() {
                   </Badge>
                 </div>
 
-                {/* Mobile Nav Links */}
-                <div className="flex flex-col gap-1">
+                {/* Mobile Nav Links - Scrollable */}
+                <div className="flex flex-col gap-1 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
                   {navLinks.map((link, i) => (
                     <motion.button
                       key={link.href}

@@ -5,6 +5,7 @@ import { motion, useInView } from 'framer-motion'
 import {
   Phone, Mail, MapPin, CheckCircle2, Loader2,
   Send, MessageCircle, User, ExternalLink, AlertTriangle,
+  IndianRupee, Layers,
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -14,6 +15,13 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Form,
   FormControl,
@@ -27,6 +35,8 @@ const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   phone: z.string().min(7, 'Please enter a valid phone number'),
   email: z.string().email('Please enter a valid email address'),
+  budget: z.string().optional(),
+  projectType: z.string().optional(),
   message: z.string().min(10, 'Message must be at least 10 characters'),
 })
 
@@ -75,6 +85,8 @@ export default function ConnectMe() {
       name: '',
       phone: '',
       email: '',
+      budget: '',
+      projectType: '',
       message: '',
     },
   })
@@ -86,7 +98,14 @@ export default function ConnectMe() {
       const res = await fetch('/api/contact-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+          phone: data.phone,
+          email: data.email,
+          budget: data.budget,
+          projectType: data.projectType,
+          message: data.message,
+        }),
       })
       const result = await res.json()
 
@@ -216,8 +235,8 @@ export default function ConnectMe() {
                       )}
                     />
 
-                    {/* Phone & Email Row */}
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    {/* Phone, Email & Budget Row */}
+                    <div className="grid sm:grid-cols-3 gap-4">
                       <FormField
                         control={form.control}
                         name="phone"
@@ -225,7 +244,7 @@ export default function ConnectMe() {
                           <FormItem>
                             <FormLabel className="flex items-center gap-1.5">
                               <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                              Phone Number
+                              Phone
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -247,7 +266,7 @@ export default function ConnectMe() {
                           <FormItem>
                             <FormLabel className="flex items-center gap-1.5">
                               <Mail className="w-3.5 h-3.5 text-emerald-400" />
-                              Email Address
+                              Email
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -261,7 +280,74 @@ export default function ConnectMe() {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={form.control}
+                        name="budget"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-1.5">
+                              <IndianRupee className="w-3.5 h-3.5 text-emerald-400" />
+                              Budget
+                            </FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              value={field.value || undefined}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full bg-white/5 border-white/10 focus:border-emerald-500/50">
+                                  <SelectValue placeholder="Select budget" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="under-50k">Under ₹50K</SelectItem>
+                                <SelectItem value="50k-1l">₹50K - ₹1L</SelectItem>
+                                <SelectItem value="1l-5l">₹1L - ₹5L</SelectItem>
+                                <SelectItem value="5l-10l">₹5L - ₹10L</SelectItem>
+                                <SelectItem value="10l+">₹10L+</SelectItem>
+                                <SelectItem value="not-sure">Not Sure Yet</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
+
+                    {/* Project Type */}
+                    <FormField
+                      control={form.control}
+                      name="projectType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                            Project Type
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value || undefined}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full bg-white/5 border-white/10 focus:border-emerald-500/50">
+                                <SelectValue placeholder="Select project type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="ai-chatbot">AI Chatbot</SelectItem>
+                              <SelectItem value="data-analytics-dashboard">Data Analytics Dashboard</SelectItem>
+                              <SelectItem value="ml-model-development">ML Model Development</SelectItem>
+                              <SelectItem value="web-ai-integration">Web + AI Integration</SelectItem>
+                              <SelectItem value="automation-pipeline">Automation Pipeline</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     {/* Message */}
                     <FormField

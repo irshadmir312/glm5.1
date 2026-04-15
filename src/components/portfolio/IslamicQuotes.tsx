@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { motion, useInView } from 'framer-motion'
-import { Copy, Check, Star, BookOpen } from 'lucide-react'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { Copy, Check, Star, RefreshCw } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,7 @@ interface IslamicQuote {
   text: string
   source: string
   emoji: string
-  category: 'Faith' | 'Patience' | 'Knowledge' | 'Success' | 'Character'
+  category: 'Faith' | 'Patience' | 'Knowledge' | 'Character'
 }
 
 const islamicQuotes: IslamicQuote[] = [
@@ -41,7 +41,6 @@ const categoryColors: Record<IslamicQuote['category'], { bg: string; border: str
   Faith: { bg: 'bg-amber-500/5', border: 'border-amber-500/20', badge: 'border-amber-500/30 text-amber-400 bg-amber-500/10' },
   Patience: { bg: 'bg-amber-500/5', border: 'border-amber-600/20', badge: 'border-amber-600/30 text-amber-300 bg-amber-600/10' },
   Knowledge: { bg: 'bg-amber-500/5', border: 'border-yellow-500/20', badge: 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10' },
-  Success: { bg: 'bg-amber-500/5', border: 'border-amber-400/20', badge: 'border-amber-400/30 text-amber-300 bg-amber-400/10' },
   Character: { bg: 'bg-amber-500/5', border: 'border-amber-500/20', badge: 'border-amber-500/30 text-amber-400 bg-amber-500/10' },
 }
 
@@ -49,6 +48,14 @@ function getWisdomOfTheDay(): IslamicQuote {
   const today = new Date()
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
   return islamicQuotes[seed % islamicQuotes.length]
+}
+
+function getRandomWisdom(excludeIndex: number): { quote: IslamicQuote; index: number } {
+  let newIndex: number
+  do {
+    newIndex = Math.floor(Math.random() * islamicQuotes.length)
+  } while (newIndex === excludeIndex && islamicQuotes.length > 1)
+  return { quote: islamicQuotes[newIndex], index: newIndex }
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -60,7 +67,6 @@ function CopyButton({ text }: { text: string }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // Fallback for older browsers
       const el = document.createElement('textarea')
       el.value = text
       document.body.appendChild(el)
@@ -94,7 +100,24 @@ function CopyButton({ text }: { text: string }) {
 export default function IslamicQuotes() {
   const ref = useRef<HTMLElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
+
   const wisdomOfTheDay = getWisdomOfTheDay()
+  const wotdIndex = islamicQuotes.indexOf(wisdomOfTheDay)
+
+  const [displayedQuote, setDisplayedQuote] = useState(wisdomOfTheDay)
+  const [displayedIndex, setDisplayedIndex] = useState(wotdIndex)
+  const [clickCount, setClickCount] = useState(1)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  const handleNextWisdom = useCallback(() => {
+    if (isAnimating) return
+    setIsAnimating(true)
+    const { quote, index } = getRandomWisdom(displayedIndex)
+    setDisplayedQuote(quote)
+    setDisplayedIndex(index)
+    setClickCount((prev) => (prev % islamicQuotes.length) + 1)
+    setTimeout(() => setIsAnimating(false), 400)
+  }, [displayedIndex, isAnimating])
 
   return (
     <section ref={ref} className="relative py-20 sm:py-28">
@@ -123,12 +146,12 @@ export default function IslamicQuotes() {
           </p>
         </motion.div>
 
-        {/* Wisdom of the Day */}
+        {/* Wisdom of the Day - Featured Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.1, duration: 0.6 }}
-          className="mb-12"
+          className="mb-8"
         >
           <div className="flex items-center gap-2 mb-4 justify-center">
             <Star className="w-5 h-5 text-amber-400" />
@@ -137,78 +160,70 @@ export default function IslamicQuotes() {
             </h3>
             <Star className="w-5 h-5 text-amber-400" />
           </div>
-          <Card
-            className="relative overflow-hidden max-w-2xl mx-auto p-8 sm:p-10 text-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(217,119,6,0.08) 0%, rgba(180,83,9,0.06) 50%, rgba(217,119,6,0.08) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(217,119,6,0.25)',
-              boxShadow: '0 0 30px rgba(217,119,6,0.08), 0 0 60px rgba(217,119,6,0.03)',
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-amber-600/5" />
-            <div className="relative z-10">
-              <span className="text-4xl mb-4 block">{wisdomOfTheDay.emoji}</span>
-              <p className="text-lg sm:text-xl font-semibold text-foreground leading-relaxed mb-3">
-                &ldquo;{wisdomOfTheDay.text}&rdquo;
-              </p>
-              <p className="text-sm text-amber-400/80 mb-3">— {wisdomOfTheDay.source}</p>
-              <div className="flex items-center justify-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={categoryColors[wisdomOfTheDay.category].badge}
+
+          <div className="relative overflow-hidden max-w-2xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={displayedIndex}
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+              >
+                <Card
+                  className="relative overflow-hidden p-8 sm:p-10 text-center"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(217,119,6,0.08) 0%, rgba(180,83,9,0.06) 50%, rgba(217,119,6,0.08) 100%)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(217,119,6,0.25)',
+                    boxShadow: '0 0 30px rgba(217,119,6,0.08), 0 0 60px rgba(217,119,6,0.03)',
+                  }}
                 >
-                  {wisdomOfTheDay.category}
-                </Badge>
-                <CopyButton text={`"${wisdomOfTheDay.text}" — ${wisdomOfTheDay.source}`} />
-              </div>
-            </div>
-          </Card>
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-amber-600/5" />
+                  <div className="relative z-10">
+                    <span className="text-5xl mb-5 block">{displayedQuote.emoji}</span>
+                    <p className="text-lg sm:text-xl font-semibold text-foreground leading-relaxed mb-3">
+                      &ldquo;{displayedQuote.text}&rdquo;
+                    </p>
+                    <p className="text-sm text-amber-400/80 mb-4">— {displayedQuote.source}</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <Badge
+                        variant="outline"
+                        className={categoryColors[displayedQuote.category].badge}
+                      >
+                        {displayedQuote.category}
+                      </Badge>
+                      <CopyButton text={`"${displayedQuote.text}" — ${displayedQuote.source}`} />
+                    </div>
+                    <span className="block text-xs font-mono text-muted-foreground mt-4">
+                      Wisdom {clickCount} of {islamicQuotes.length}
+                    </span>
+                  </div>
+                </Card>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </motion.div>
 
-        {/* Quotes Grid */}
+        {/* Next Wisdom Button */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2, duration: 0.6 }}
+          className="flex flex-col items-center gap-3"
         >
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <BookOpen className="w-5 h-5 text-amber-400" />
-            <h3 className="text-lg font-semibold">All Wisdom</h3>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {islamicQuotes.map((quote, i) => {
-              const colors = categoryColors[quote.category]
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.2 + i * 0.04, duration: 0.4 }}
-                >
-                  <Card
-                    className={`p-4 card-hover ${colors.bg} ${colors.border} cursor-default`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl shrink-0">{quote.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground leading-relaxed mb-1">
-                          &ldquo;{quote.text}&rdquo;
-                        </p>
-                        <p className="text-[11px] text-amber-400/60 mb-2">{quote.source}</p>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className={`text-[10px] ${colors.badge}`}>
-                            {quote.category}
-                          </Badge>
-                          <CopyButton text={`"${quote.text}" — ${quote.source}`} />
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </div>
+          <Button
+            onClick={handleNextWisdom}
+            disabled={isAnimating}
+            variant="outline"
+            className="gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300"
+          >
+            <RefreshCw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
+            Next Wisdom
+          </Button>
+          <span className="text-xs text-muted-foreground/50">
+            Click to discover more Islamic wisdom
+          </span>
         </motion.div>
       </div>
     </section>

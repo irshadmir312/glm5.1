@@ -8,61 +8,76 @@ import { Input } from '@/components/ui/input'
 import { usePortfolioStore, type ChatMessage } from '@/store/portfolio'
 
 const quickActions = [
-  { label: 'Mock Interview', prompt: 'Start a mock interview for an AI/ML Engineer position' },
-  { label: 'Explain Project', prompt: 'Explain the Fraud Detection System project in detail' },
-  { label: 'Career Advice', prompt: 'What career advice would you give for becoming an AI Engineer?' },
-  { label: 'Skills Assessment', prompt: 'Assess my current skills and suggest areas for improvement' },
+  { label: 'My Projects', prompt: 'Tell me about your projects and their impact' },
+  { label: 'Hire Me', prompt: 'I want to hire you for an AI project' },
+  { label: 'AI Solutions', prompt: 'What AI solutions can you build for businesses?' },
+  { label: 'Tech Stack', prompt: "What's your tech stack and expertise?" },
 ]
 
-// Fallback responses when API is unavailable
+// Fallback responses when API is unavailable — written in first person as Irshad
 const fallbackResponses: Record<string, string> = {
-  interview: `Great! Let's start a mock interview. Here's my first question:
+  interview: `Great question! Let me walk you through it:
 
-**Tell me about a time you had to handle imbalanced data in a machine learning project. What techniques did you use?**
+**Handling Imbalanced Data:**
 
-Take your time — I'll evaluate your response based on technical depth and practical experience.`,
+In my fraud detection project, the data was heavily imbalanced (~0.3% fraud). Here's what I did:
+
+1. **SMOTE + ADASYN** for oversampling the minority class
+2. **Class-weighted loss functions** in XGBoost and the neural network
+3. **Custom threshold tuning** — I optimized the decision threshold for F1-score rather than accuracy
+4. **Stratified K-fold cross-validation** to maintain class distribution
+
+The result? 96.4% accuracy with a 0.92 F1-score, and we reduced false positives by 35%.
+
+Would you like to hear about the architecture or deployment strategy?`,
   fraud: `## Fraud Detection System 🔍
 
 This is one of my flagship projects! Here's a deep dive:
 
-**Architecture:**
-- Feature engineering pipeline processing 1M+ transactions/day
-- XGBoost ensemble with neural network fallback
+**The Problem:** A client was losing ₹5L/month to undetected fraudulent transactions. Their existing rule-based system was catching only 40% of fraud.
+
+**What I Built:**
+- **XGBoost + Neural Network ensemble** with real-time feature engineering
+- Processing pipeline handling 1M+ transactions/day
 - Real-time scoring via FastAPI + Redis (<50ms latency)
 
 **Key Results:**
-- 96.4% accuracy, 0.92 F1-score
+- **96.4% accuracy**, 0.92 F1-score
 - Reduced false positives by 35%
-- Saved $2.4M in prevented fraud losses
+- **₹15L saved annually** in prevented fraud losses
+- 96.4% of fraud caught in real-time
 
-**Tech Stack:** Python, XGBoost, TensorFlow, FastAPI, Redis, Docker, AWS
+**Tech Stack:** Python, XGBoost, TensorFlow, FastAPI, Redis, Docker
 
-Would you like to try the interactive demo?`,
-  career: `## Career Advice for AI Engineers 🚀
+Want to know more about the feature engineering or deployment?`,
+  career: `## Career Advice from My Journey 🚀
 
-Based on my journey from B.Tech to AI/ML Engineer:
+From Sopur, Kashmir to building AI solutions that impact businesses globally — here's what I've learned:
 
-1. **Build a Strong Foundation** — Master Python, SQL, and statistics first
-2. **Learn by Building** — Don't just follow tutorials; create original projects
-3. **Specialize, Then Generalize** — Start deep (e.g., NLP), then expand
-4. **Deploy Everything** — A model in a notebook isn't a product. Learn MLOps.
-5. **Stay Current** — Follow papers, attend meetups, contribute to open source
+1. **Build a Strong Foundation** — Master Python, SQL, and statistics before jumping into frameworks
+2. **Learn by Building Real Things** — My fraud detection system taught me more than 100 tutorials combined
+3. **Specialize, Then Generalize** — I started with ML, then expanded to full-stack AI
+4. **Deploy Everything** — A model in a notebook isn't a product. Learn MLOps early.
+5. **Show Impact with Numbers** — "Reduced processing time by 40%" speaks louder than "used PyTorch"
 
 The field moves fast — focus on fundamentals, and you'll adapt to any new technology.`,
-  skills: `## Skills Assessment 💡
+  skills: `## My Tech Stack & Expertise 💡
 
-Here's my current skill profile:
+**AI/ML (Expert):** Python, PyTorch, TensorFlow, Scikit-learn, XGBoost, Hugging Face
+**Backend:** FastAPI, Flask, Node.js
+**Frontend:** React, Next.js, Tailwind CSS
+**Data:** PostgreSQL, MongoDB, Redis, Elasticsearch
+**Cloud/DevOps:** AWS, Docker, GitHub Actions
 
-**Strong (Expert):** Python, Machine Learning, Deep Learning, SQL, Data Visualization
-**Proficient:** NLP, Cloud (AWS/GCP), Docker, FastAPI, React/Next.js
-**Learning:** Rust, Kubernetes, Advanced MLOps
+**What I'm Best At:**
+- End-to-end ML systems (data pipeline → model → deployment)
+- Fraud detection & anomaly detection
+- NLP pipelines & chatbot development
+- Recommendation engines (collaborative + content-based)
 
-**Areas I'm focusing on:**
-- Scaling AI systems for production
-- Advanced RAG & Agent architectures
-- Real-time ML inference optimization
+**Currently Exploring:** Advanced RAG architectures, real-time ML inference optimization
 
-Want me to dive deeper into any specific skill area?`,
+Want me to dive deeper into any specific area?`,
 }
 
 function getFallbackResponse(message: string): string {
@@ -70,13 +85,15 @@ function getFallbackResponse(message: string): string {
   if (lower.includes('interview') || lower.includes('mock')) return fallbackResponses.interview
   if (lower.includes('fraud') || lower.includes('project')) return fallbackResponses.fraud
   if (lower.includes('career') || lower.includes('advice')) return fallbackResponses.career
-  if (lower.includes('skill') || lower.includes('assess')) return fallbackResponses.skills
-  if (lower.includes('hello') || lower.includes('hi')) return "Hello! 👋 I'm Irshad's AI clone. I can tell you about his projects, skills, experience, or even do a mock interview. What would you like to know?"
-  if (lower.includes('contact') || lower.includes('hire') || lower.includes('email')) return "Great to hear you're interested! You can use the contact form at the bottom of the page, or reach out directly via:\n\n- **LinkedIn:** Irshad Majeed Mir\n- **GitHub:** @irshad-dev\n- **Email:** hello@irshad.dev\n\nI'd love to discuss potential collaborations! 🤝"
-  if (lower.includes('tech stack') || lower.includes('technologies')) return "My core tech stack includes:\n\n**AI/ML:** Python, PyTorch, TensorFlow, Scikit-learn, Hugging Face\n**Backend:** FastAPI, Flask, Node.js\n**Frontend:** React, Next.js, Tailwind CSS\n**Data:** PostgreSQL, MongoDB, Redis, Elasticsearch\n**Cloud/DevOps:** AWS, GCP, Docker, GitHub Actions\n\nAlways expanding! What tech are you most interested in?"
-  if (lower.includes('thank')) return "You're welcome! 😊 Feel free to come back anytime. Good luck with whatever you're working on!"
+  if (lower.includes('skill') || lower.includes('assess') || lower.includes('tech stack') || lower.includes('expertise')) return fallbackResponses.skills
+  if (lower.includes('hello') || lower.includes('hi')) return "Hey there! 👋 I'm Irshad's AI assistant. I can tell you about my projects — like the fraud detection system with 96.4% accuracy, or the recommendation engine that boosted conversions by 58%. What would you like to know?"
+  if (lower.includes('hire') || lower.includes('contact') || lower.includes('email') || lower.includes('want to work')) return "I'd love to hear about your project! 🤝\n\nYou can reach me directly via:\n- **WhatsApp:** +91 9622334883\n- **Contact Form:** Scroll down to the contact section below\n\nI specialize in fraud detection, NLP pipelines, recommendation engines, and full-stack AI applications. Let's discuss how I can help your business!"
+  if (lower.includes('tech stack') || lower.includes('technologies')) return "My core tech stack:\n\n**AI/ML:** Python, PyTorch, TensorFlow, XGBoost, Hugging Face\n**Backend:** FastAPI, Flask, Node.js\n**Frontend:** React, Next.js, Tailwind CSS\n**Data:** PostgreSQL, MongoDB, Redis\n**Cloud/DevOps:** AWS, Docker, GitHub Actions\n\nWant to know about a specific area?"
+  if (lower.includes('recommend') || lower.includes('conversion')) return "## Recommendation Engine 🚀\n\nOne of my proudest projects:\n\n**Problem:** An e-commerce platform was stuck at 12% conversion — users couldn't find relevant products.\n\n**Solution:** I built a hybrid recommendation engine combining:\n- Collaborative filtering (user behavior patterns)\n- Content-based filtering (product similarity)\n- Real-time personalization serving 10K+ recommendations/second\n\n**Result:** **58% increase in conversion rate** — from 12% to 19%\n\n**Tech:** Python, TensorFlow, FastAPI, Redis\n\nWant to discuss how I can build something similar for your platform?"
+  if (lower.includes('thank')) return "You're welcome! 😊 If you'd like to discuss a project or opportunity, feel free to reach out via the contact form or WhatsApp at +91 9622334883. Looking forward to connecting!"
+  if (lower.includes('ai solution') || lower.includes('what can you build') || lower.includes('business')) return "## AI Solutions I Build for Businesses 💼\n\nHere's what I can help with:\n\n1. **Fraud Detection Systems** — Real-time anomaly detection with 96.4% accuracy (saved ₹15L/year for a client)\n2. **NLP & Chatbots** — Intelligent conversational AI for customer support\n3. **Recommendation Engines** — Hybrid systems that boosted conversions by 58%\n4. **Data Pipelines** — ML pipelines processing 1M+ records/day, reducing processing time by 40%\n5. **Full-Stack AI Apps** — End-to-end from model to deployment\n\nI'm currently available for UK and remote roles. Want to discuss a specific use case?"
 
-  return "That's an interesting question! While I'm a simplified AI clone of Irshad, I can share that he's passionate about building AI systems that create real impact. Would you like to know about his projects, skills, or experience? You can also try the quick actions below for specific topics. 🚀"
+  return "That's a great question! While I'm an AI assistant and still learning the full depth of Irshad's experience, I can share that he's built systems like:\n\n- 🔍 **Fraud detection** with 96.4% accuracy (saving ₹15L/year)\n- 📈 **Recommendation engine** that boosted conversions by 58%\n- ⚡ **ML pipeline** reducing processing time by 40%\n\nFor detailed discussions, feel free to contact me directly via the form below or WhatsApp at +91 9622334883! 🚀"
 }
 
 export default function AIChatBot() {
@@ -133,7 +150,6 @@ export default function AIChatBot() {
         }
         addChatMessage(aiMsg)
       } else {
-        // Fallback to local responses on API error
         throw new Error('API error')
       }
     } catch {
@@ -187,10 +203,9 @@ export default function AIChatBot() {
                   <Bot className="w-4 h-4 text-black" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold">AI Clone</h3>
-                  <p className="text-[10px] text-emerald-400 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Online
+                  <h3 className="text-sm font-semibold">Ask Me Anything</h3>
+                  <p className="text-[10px] text-emerald-400">
+                    I can help with projects, hiring, or tech guidance
                   </p>
                 </div>
               </div>
@@ -240,7 +255,7 @@ export default function AIChatBot() {
                       >
                         <Sparkles className="w-8 h-8 text-emerald-400/50 mx-auto mb-3" />
                         <p className="text-sm text-muted-foreground mb-4">
-                          I&apos;m Irshad&apos;s AI assistant. Ask me anything!
+                          I&apos;m Irshad&apos;s AI assistant. Ask me about my projects, AI solutions, or how I can help your business!
                         </p>
                         <div className="grid grid-cols-2 gap-2">
                           {quickActions.map((action) => (
@@ -353,6 +368,9 @@ export default function AIChatBot() {
                         <Send className="w-4 h-4" />
                       </Button>
                     </form>
+                    <p className="text-[10px] text-muted-foreground/40 mt-1.5 text-center">
+                      I&apos;m an AI assistant. For direct contact, use the form or WhatsApp.
+                    </p>
                   </div>
                 </motion.div>
               )}

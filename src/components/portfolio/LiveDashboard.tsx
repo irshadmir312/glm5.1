@@ -98,8 +98,8 @@ const getHeatColor = (count: number) => {
 const stats = [
   { icon: Users, label: 'Portfolio Visitors', value: 2847, color: 'text-emerald-400' },
   { icon: GitCommit, label: 'GitHub Commits', value: 1847, color: 'text-cyan-400' },
-  { icon: TrendingUp, label: 'Projects Completed', value: 53, color: 'text-purple-400' },
-  { icon: Award, label: 'Certifications', value: 12, color: 'text-amber-400' },
+  { icon: TrendingUp, label: 'Projects Completed', value: 15, color: 'text-purple-400' },
+  { icon: Award, label: 'Certifications', value: 6, color: 'text-amber-400' },
 ]
 
 export default function LiveDashboard() {
