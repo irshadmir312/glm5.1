@@ -23,7 +23,7 @@ const milestones: Milestone[] = [
   {
     icon: Mountain,
     title: 'Roots in Kashmir',
-    description: 'Born and raised in Sopur, Kashmir — a place that taught me resilience, curiosity, and the value of dreaming big against all odds.',
+    description: 'Born and raised in Kupwara, Kashmir — a place that taught me resilience, curiosity, and the value of dreaming big against all odds.',
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/5',
   },
@@ -107,7 +107,7 @@ export default function PersonalStory() {
             className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full glass border border-emerald-500/10"
           >
             <MapPin className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm text-muted-foreground">Sopur, Kashmir, India</span>
+            <span className="text-sm text-muted-foreground">🏔️ Kupwara, Kashmir, India</span>
           </motion.div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
@@ -119,7 +119,7 @@ export default function PersonalStory() {
           <div className="max-w-2xl mx-auto space-y-4 text-muted-foreground leading-relaxed">
             <p>
               I grew up in a small town where resources were limited but ambitions
-              weren&apos;t. As a kid in Sopur, Kashmir, I was always fascinated by how
+              weren&apos;t. As a kid in Kupwara, Kashmir, I was always fascinated by how
               things worked — taking apart electronics, solving puzzles, and later,
               writing my first lines of code on a borrowed laptop.
             </p>

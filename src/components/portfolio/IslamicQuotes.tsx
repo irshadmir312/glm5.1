@@ -91,7 +91,7 @@ function CopyButton({ text }: { text: string }) {
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top">
-        <p>{copied ? 'Copied!' : 'Copy quote'}</p>
+        <p>{copied ? '✅ Copied!' : '📋 Copy quote'}</p>
       </TooltipContent>
     </Tooltip>
   )
@@ -106,7 +106,6 @@ export default function IslamicQuotes() {
 
   const [displayedQuote, setDisplayedQuote] = useState(wisdomOfTheDay)
   const [displayedIndex, setDisplayedIndex] = useState(wotdIndex)
-  const [clickCount, setClickCount] = useState(1)
   const [isAnimating, setIsAnimating] = useState(false)
 
   const handleNextWisdom = useCallback(() => {
@@ -115,7 +114,6 @@ export default function IslamicQuotes() {
     const { quote, index } = getRandomWisdom(displayedIndex)
     setDisplayedQuote(quote)
     setDisplayedIndex(index)
-    setClickCount((prev) => (prev % islamicQuotes.length) + 1)
     setTimeout(() => setIsAnimating(false), 400)
   }, [displayedIndex, isAnimating])
 
@@ -142,11 +140,11 @@ export default function IslamicQuotes() {
             </span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Timeless guidance from the Quran and Sunnah to illuminate your path.
+            📿 Timeless guidance from the Quran and Sunnah to illuminate your path.
           </p>
         </motion.div>
 
-        {/* Wisdom of the Day - Featured Card */}
+        {/* Wisdom Card - No numbering */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -156,7 +154,7 @@ export default function IslamicQuotes() {
           <div className="flex items-center gap-2 mb-4 justify-center">
             <Star className="w-5 h-5 text-amber-400" />
             <h3 className="text-sm font-semibold uppercase tracking-wider text-amber-400">
-              Wisdom of the Day
+              🌟 Wisdom of the Day
             </h3>
             <Star className="w-5 h-5 text-amber-400" />
           </div>
@@ -195,9 +193,6 @@ export default function IslamicQuotes() {
                       </Badge>
                       <CopyButton text={`"${displayedQuote.text}" — ${displayedQuote.source}`} />
                     </div>
-                    <span className="block text-xs font-mono text-muted-foreground mt-4">
-                      Wisdom {clickCount} of {islamicQuotes.length}
-                    </span>
                   </div>
                 </Card>
               </motion.div>
@@ -219,10 +214,10 @@ export default function IslamicQuotes() {
             className="gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300"
           >
             <RefreshCw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
-            Next Wisdom
+            🔄 Next Wisdom
           </Button>
           <span className="text-xs text-muted-foreground/50">
-            Click to discover more Islamic wisdom
+            Tap to discover more Islamic wisdom 🤲
           </span>
         </motion.div>
       </div>

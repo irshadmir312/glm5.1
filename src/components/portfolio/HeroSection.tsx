@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Download, ChevronDown, Terminal, Bot, Database, Code2, BrainCircuit, Globe2 } from 'lucide-react'
+import { ArrowRight, Sparkles, ChevronDown, Terminal, Bot, Database, Code2, BrainCircuit, Globe2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { usePortfolioStore } from '@/store/portfolio'
 import { Badge } from '@/components/ui/badge'
@@ -89,6 +89,10 @@ export default function HeroSection() {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const scrollToContact = () => {
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   const isName = titleIndex === 0
 
   return (
@@ -121,12 +125,12 @@ export default function HeroSection() {
             >
               <Sparkles className="w-4 h-4 text-emerald-400" />
               <span className="text-sm text-muted-foreground font-medium">
-                Available for opportunities
+                ✨ Available for opportunities
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             </motion.div>
 
-            <p className="text-muted-foreground text-lg mb-2">Hi, I&apos;m</p>
+            <p className="text-muted-foreground text-lg mb-2">👋 Hi, I&apos;m</p>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
               <span className={`${isName ? 'neon-text text-emerald-400' : 'text-foreground'}`}>
@@ -141,7 +145,7 @@ export default function HeroSection() {
               transition={{ delay: 0.4 }}
               className="text-lg sm:text-xl text-muted-foreground mb-3"
             >
-              AI/ML Engineer building real-world AI systems &amp; intelligent chatbots for businesses
+              🤖 AI/ML Engineer building real-world AI systems &amp; intelligent chatbots for businesses
             </motion.p>
 
             <motion.p
@@ -150,7 +154,7 @@ export default function HeroSection() {
               transition={{ delay: 0.5 }}
               className="text-sm sm:text-base text-muted-foreground/70 mb-8 max-w-lg"
             >
-              From Sopur, Kashmir to building AI solutions that impact businesses globally. Specializing in fraud detection, NLP pipelines, recommendation engines, and full-stack AI applications.
+              🏔️ From Kupwara, Kashmir to building AI solutions that impact businesses globally. Specializing in fraud detection, NLP pipelines, recommendation engines, and full-stack AI applications.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -165,17 +169,16 @@ export default function HeroSection() {
                 size="lg"
                 className="bg-emerald-500 hover:bg-emerald-400 text-black font-semibold gap-2 neon-glow"
               >
-                Explore My Work
+                🚀 Explore My Work
                 <ArrowRight className="w-4 h-4" />
               </Button>
               <Button
-                href="#"
+                onClick={scrollToContact}
                 size="lg"
                 variant="outline"
                 className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 gap-2"
               >
-                <Download className="w-4 h-4" />
-                Download Resume
+                💬 Let&apos;s Connect
               </Button>
               <Button
                 onClick={() => setChatOpen(true)}
@@ -184,7 +187,7 @@ export default function HeroSection() {
                 className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 gap-2"
               >
                 <Bot className="w-4 h-4" />
-                Chat with AI Clone
+                Chat with AI Clone 🤖
               </Button>
             </motion.div>
 
@@ -200,7 +203,7 @@ export default function HeroSection() {
                 className="gap-1.5 text-xs border-cyan-500/30 text-cyan-400 bg-cyan-500/5 px-3 py-1.5"
               >
                 <Globe2 className="w-3 h-3" />
-                Available for UK &amp; Remote Roles
+                🌍 Available for UK &amp; Remote Roles
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               </Badge>
             </motion.div>
@@ -210,7 +213,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className="flex gap-8"
+              className="flex gap-6 sm:gap-8"
             >
               {stats.map((stat) => (
                 <div key={stat.label}>
@@ -239,7 +242,7 @@ export default function HeroSection() {
                 <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                 <span className="ml-3 text-xs font-mono text-muted-foreground">
-                  irshad@ai-portfolio ~ %
+                  💻 irshad@ai-portfolio ~ %
                 </span>
               </div>
 
@@ -294,7 +297,7 @@ export default function HeroSection() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-xs text-muted-foreground/50 tracking-widest uppercase">
-          Scroll to explore
+          📜 Scroll to explore
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}

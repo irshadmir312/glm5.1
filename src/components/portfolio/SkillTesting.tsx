@@ -21,7 +21,7 @@ interface Question {
 const questions: Question[] = [
   {
     id: 1,
-    topic: 'Python',
+    topic: '🐍 Python',
     question: 'What does the "self" parameter refer to in a Python class method?',
     options: ['The class itself', 'The current instance of the class', 'The parent class', 'A global variable'],
     correct: 1,
@@ -29,7 +29,7 @@ const questions: Question[] = [
   },
   {
     id: 2,
-    topic: 'Machine Learning',
+    topic: '🤖 Machine Learning',
     question: 'Which algorithm is used for both classification and regression tasks?',
     options: ['Naive Bayes', 'Random Forest', 'Linear Regression', 'K-Means'],
     correct: 1,
@@ -37,7 +37,7 @@ const questions: Question[] = [
   },
   {
     id: 3,
-    topic: 'Deep Learning',
+    topic: '🧠 Deep Learning',
     question: 'What is the purpose of dropout in a neural network?',
     options: ['Increase model size', 'Prevent overfitting', 'Speed up training', 'Normalize data'],
     correct: 1,
@@ -45,7 +45,7 @@ const questions: Question[] = [
   },
   {
     id: 4,
-    topic: 'SQL',
+    topic: '🗄️ SQL',
     question: 'Which SQL clause is used to filter aggregated results?',
     options: ['WHERE', 'HAVING', 'GROUP BY', 'ORDER BY'],
     correct: 1,
@@ -53,7 +53,7 @@ const questions: Question[] = [
   },
   {
     id: 5,
-    topic: 'Data Engineering',
+    topic: '📊 Data Engineering',
     question: 'What is the primary benefit of data partitioning in distributed systems?',
     options: ['Better compression', 'Parallel processing & faster queries', 'Data encryption', 'Schema validation'],
     correct: 1,
@@ -61,7 +61,7 @@ const questions: Question[] = [
   },
   {
     id: 6,
-    topic: 'Machine Learning',
+    topic: '🤖 Machine Learning',
     question: 'What does the confusion matrix element "False Positive" represent?',
     options: ['Correctly predicted positive', 'Incorrectly predicted positive', 'Correctly predicted negative', 'Incorrectly predicted negative'],
     correct: 1,
@@ -69,7 +69,7 @@ const questions: Question[] = [
   },
   {
     id: 7,
-    topic: 'Deep Learning',
+    topic: '🧠 Deep Learning',
     question: 'Which activation function is most commonly used in hidden layers of modern neural networks?',
     options: ['Sigmoid', 'ReLU', 'Tanh', 'Softmax'],
     correct: 1,
@@ -77,7 +77,7 @@ const questions: Question[] = [
   },
   {
     id: 8,
-    topic: 'Python',
+    topic: '🐍 Python',
     question: 'What is the time complexity of dictionary lookups in Python?',
     options: ['O(n)', 'O(log n)', 'O(1) average', 'O(n log n)'],
     correct: 2,
@@ -86,11 +86,11 @@ const questions: Question[] = [
 ]
 
 const topicColors: Record<string, string> = {
-  'Python': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  'Machine Learning': 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
-  'Deep Learning': 'text-purple-400 bg-purple-500/10 border-purple-500/20',
-  'SQL': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  'Data Engineering': 'text-pink-400 bg-pink-500/10 border-pink-500/20',
+  '🐍 Python': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+  '🤖 Machine Learning': 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
+  '🧠 Deep Learning': 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+  '🗄️ SQL': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+  '📊 Data Engineering': 'text-pink-400 bg-pink-500/10 border-pink-500/20',
 }
 
 export default function SkillTesting() {
@@ -162,6 +162,7 @@ export default function SkillTesting() {
   }
 
   const q = questions[currentQuestion]
+  const progressPercent = ((currentQuestion + (showExplanation ? 1 : 0)) / questions.length) * 100
 
   return (
     <section id="skills" ref={ref} className="relative py-20 sm:py-28">
@@ -174,10 +175,10 @@ export default function SkillTesting() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Skill <span className="neon-text text-emerald-400">Quiz</span>
+            🧠 Skill <span className="neon-text text-emerald-400">Quiz</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Test your AI/ML knowledge with 8 questions across Python, ML, Deep Learning, SQL, and Data Engineering.
+            Test your AI/ML knowledge with 8 questions across Python, ML, Deep Learning, SQL, and Data Engineering! 🎯
           </p>
         </motion.div>
 
@@ -193,12 +194,12 @@ export default function SkillTesting() {
                 <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-8 h-8 text-emerald-400" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Ready to Test Your Skills?</h3>
+                <h3 className="text-xl font-semibold mb-2">🚀 Ready to Test Your Skills?</h3>
                 <p className="text-sm text-muted-foreground mb-6">
                   8 questions • 30 seconds each • Multiple topics
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 mb-6">
-                  {['Python', 'Machine Learning', 'Deep Learning', 'SQL', 'Data Engineering'].map((topic) => (
+                  {['🐍 Python', '🤖 Machine Learning', '🧠 Deep Learning', '🗄️ SQL', '📊 Data Engineering'].map((topic) => (
                     <Badge key={topic} variant="outline" className={topicColors[topic]}>
                       {topic}
                     </Badge>
@@ -209,7 +210,7 @@ export default function SkillTesting() {
                   className="bg-emerald-500 hover:bg-emerald-400 text-black gap-2"
                   size="lg"
                 >
-                  Start Quiz
+                  Start Quiz 🎯
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Card>
@@ -230,12 +231,12 @@ export default function SkillTesting() {
                 >
                   <Trophy className="w-10 h-10 text-amber-400" />
                 </motion.div>
-                <h3 className="text-2xl font-bold mb-2">Quiz Complete!</h3>
+                <h3 className="text-2xl font-bold mb-2">🎉 Quiz Complete!</h3>
                 <div className="text-5xl font-bold text-emerald-400 mb-2">
                   {Math.round((score / questions.length) * 100)}%
                 </div>
                 <p className="text-muted-foreground mb-6">
-                  You got {score} out of {questions.length} questions correct
+                  You got {score} out of {questions.length} questions correct ✅
                 </p>
                 <div className="space-y-2 mb-6">
                   {questions.map((question, i) => {
@@ -253,7 +254,7 @@ export default function SkillTesting() {
                 </div>
                 <Button onClick={resetQuiz} className="bg-emerald-500 hover:bg-emerald-400 text-black gap-2">
                   <RotateCcw className="w-4 h-4" />
-                  Try Again
+                  Try Again 🔄
                 </Button>
               </Card>
             </motion.div>
@@ -265,25 +266,22 @@ export default function SkillTesting() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {/* Progress */}
-              <div className="flex items-center justify-between mb-4">
+              {/* Progress bar only - no numbering */}
+              <div className="flex items-center justify-between mb-3">
                 <Badge variant="outline" className={topicColors[q.topic]}>
                   {q.topic}
                 </Badge>
-                <span className="text-sm text-muted-foreground font-mono">
-                  {currentQuestion + 1} / {questions.length}
-                </span>
               </div>
-              <Progress value={((currentQuestion) / questions.length) * 100} className="h-1.5 mb-6 [&>div]:bg-emerald-400" />
+              <Progress value={progressPercent} className="h-2 mb-5 [&>div]:bg-emerald-400" />
 
               {/* Timer */}
               <div className="flex items-center gap-2 mb-4">
                 <Clock className={`w-4 h-4 ${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-muted-foreground'}`} />
                 <span className={`text-sm font-mono ${timeLeft <= 10 ? 'text-red-400' : 'text-muted-foreground'}`}>
-                  {timeLeft}s
+                  ⏱️ {timeLeft}s
                 </span>
                 <div className="flex-1" />
-                <span className="text-sm text-emerald-400 font-mono">Score: {score}</span>
+                <span className="text-sm text-emerald-400 font-mono">⭐ Score: {score}</span>
               </div>
 
               <Card className="glass p-6 mb-6">
@@ -363,7 +361,7 @@ export default function SkillTesting() {
 
               {showExplanation && (
                 <Button onClick={nextQuestion} className="w-full bg-emerald-500 hover:bg-emerald-400 text-black gap-2">
-                  {currentQuestion + 1 >= questions.length ? 'See Results' : 'Next Question'}
+                  {currentQuestion + 1 >= questions.length ? '🏆 See Results' : '➡️ Next Question'}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               )}

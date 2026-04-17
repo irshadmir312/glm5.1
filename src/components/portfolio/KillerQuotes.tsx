@@ -61,7 +61,6 @@ export default function KillerQuotes() {
 
   const [displayedQuote, setDisplayedQuote] = useState(quoteOfTheDay)
   const [displayedIndex, setDisplayedIndex] = useState(qotdIndex)
-  const [clickCount, setClickCount] = useState(1)
   const [isAnimating, setIsAnimating] = useState(false)
 
   const handleNewQuote = useCallback(() => {
@@ -70,7 +69,6 @@ export default function KillerQuotes() {
     const { quote, index } = getRandomQuote(displayedIndex)
     setDisplayedQuote(quote)
     setDisplayedIndex(index)
-    setClickCount((prev) => (prev % quotes.length) + 1)
     setTimeout(() => setIsAnimating(false), 400)
   }, [displayedIndex, isAnimating])
 
@@ -89,11 +87,11 @@ export default function KillerQuotes() {
             <span className="neon-text text-orange-400">🔥 Killer Quotes</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Quotes that hit different. Savage, flirty, and brutally honest — take what resonates.
+            😏 Quotes that hit different. Savage, flirty, and brutally honest — take what resonates.
           </p>
         </motion.div>
 
-        {/* Quote of the Day - Featured Card */}
+        {/* Quote Card - No numbering shown */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -103,7 +101,7 @@ export default function KillerQuotes() {
           <div className="flex items-center gap-2 mb-4 justify-center">
             <Sparkles className="w-5 h-5 text-amber-400" />
             <h3 className="text-sm font-semibold uppercase tracking-wider text-amber-400">
-              Quote of the Day
+              ✨ Quote of the Day
             </h3>
             <Sparkles className="w-5 h-5 text-amber-400" />
           </div>
@@ -137,16 +135,13 @@ export default function KillerQuotes() {
                     <p className="text-lg sm:text-xl font-semibold text-foreground leading-relaxed mb-5 italic">
                       &ldquo;{displayedQuote.text}&rdquo;
                     </p>
-                    <div className="flex items-center justify-center gap-3 mb-4">
+                    <div className="flex items-center justify-center gap-3">
                       <Badge
                         variant="outline"
                         className={categoryColors[displayedQuote.category].badge}
                       >
                         {displayedQuote.category}
                       </Badge>
-                      <span className="text-xs font-mono text-muted-foreground">
-                        Quote {clickCount} of {quotes.length}
-                      </span>
                     </div>
                   </div>
                 </Card>
@@ -169,10 +164,10 @@ export default function KillerQuotes() {
             className="gap-2 border-orange-500/30 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300"
           >
             <RefreshCw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
-            Generate New Quote
+            ✨ Generate New Quote
           </Button>
           <span className="text-xs text-muted-foreground/50">
-            Click to discover another killer quote
+            Tap to discover another killer quote 🎯
           </span>
         </motion.div>
       </div>
