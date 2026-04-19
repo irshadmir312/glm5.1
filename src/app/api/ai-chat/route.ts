@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // ============================================================
-// 🔑 AI CHAT API — Uses z-ai-web-dev-sdk (GLM Models - FREE)
+// 🔑 AI CHAT API — GLM-5.1 via Modal (745B Parameters, FREE)
 // ============================================================
-// DEPLOYMENT: Set on Vercel Environment Variables:
-//   AI_API_KEY=your-z-ai-api-key
-//   AI_MODEL=glm-4-flash
+// Vercel Environment Variables:
+//   AI_API_KEY=modalresearch_GZluYX94UHICgOG7xZ5uKn1EN_c-QvK7-MohRtgHjAE
+//   AI_MODEL=zai-org/GLM-5.1-FP8
+//   AI_API_BASE=https://api.us-west-2.modal.direct/v1
 // ============================================================
 
 const MODE_PROMPTS: Record<string, string> = {
   recruiter:
-    `You are speaking with a RECRUITER or HIRING MANAGER. Be highly professional, highlight Irshad's technical expertise, leadership qualities, and quantifiable achievements. Emphasize production-grade experience, scalability work, and business impact. Keep responses concise, confident, and results-oriented. Use formal language with bullet points when listing achievements.`,
+    `You are speaking with a RECRUITER or HIRING MANAGER. Be highly professional, highlight Irshad's technical expertise, leadership qualities, and quantifiable achievements. Emphasize production-grade experience, scalability work, and business impact. Keep responses concise, confident, and results-oriented.`,
   student:
-    `You are speaking with a STUDENT or LEARNER. Be educational, encouraging, and detailed in explanations. Break down complex concepts into simple terms with analogies. Share learning resources, career advice, and practical tips. Be patient and supportive.`,
+    `You are speaking with a STUDENT or LEARNER. Be educational, encouraging, and detailed in explanations. Break down complex concepts into simple terms with analogies. Share learning resources, career advice, and practical tips.`,
   client:
-    `You are speaking with a POTENTIAL CLIENT. Be business-focused, highlight Irshad's ability to deliver ROI, meet deadlines, and solve real-world problems. Be professional but approachable. Discuss budgets, timelines, and deliverables confidently.`,
+    `You are speaking with a POTENTIAL CLIENT. Be business-focused, highlight Irshad's ability to deliver ROI, meet deadlines, and solve real-world problems. Be professional but approachable.`,
   explorer:
-    `You are speaking with a CURIOUS VISITOR. Be friendly, conversational, and engaging. Share interesting stories, fun facts, and personal anecdotes. Be warm and approachable. Show personality and humor. Use emojis naturally.`,
+    `You are speaking with a CURIOUS VISITOR. Be friendly, conversational, and engaging. Share interesting stories, fun facts, and personal anecdotes. Show personality and humor. Use emojis naturally.`,
 }
 
 const SYSTEM_PROMPT = `You are the AI digital clone of Irshad Majeed Mir — an AI/ML Engineer, Data Scientist, and Founder of RuleMatrix. You represent him on his portfolio website. You must always respond as if you ARE Irshad, using "I" and "my" pronouns. Never break character. Never say you are an AI, a bot, or a language model.
@@ -69,7 +70,7 @@ const SYSTEM_PROMPT = `You are the AI digital clone of Irshad Majeed Mir — an 
 - Be conversational and engaging
 - Keep responses focused but comprehensive`
 
-// Simple in-memory rate limiting
+// Rate limiting
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
 
 function checkRateLimit(userId: string): boolean {
@@ -101,7 +102,8 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.AI_API_KEY
-    const model = process.env.AI_MODEL || 'glm-4-flash'
+    const apiBase = process.env.AI_API_BASE || 'https://api.us-west-2.modal.direct/v1'
+    const model = process.env.AI_MODEL || 'zai-org/GLM-5.1-FP8'
 
     // Health check
     if (healthCheck) {
@@ -119,7 +121,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Rate limit
     if (!checkRateLimit(userId)) {
       return NextResponse.json({ error: 'Rate limit exceeded. Please wait a moment.' }, { status: 429 })
     }
@@ -141,29 +142,39 @@ export async function POST(req: NextRequest) {
     }
     messages.push({ role: 'user', content: message })
 
-    // Use z-ai-web-dev-sdk (handles all API URLs automatically)
+    // Call GLM-5.1 API via Modal
     let aiResponseText: string
     try {
-      const ZAI = (await import('z-ai-web-dev-sdk')).default
-      const zai = await ZAI.create({ apiKey })
-      const response = await zai.chat.completions.create({ messages, model, max_tokens: 1500, temperature: 0.8 })
-      
-      if (typeof response === 'string') {
-        aiResponseText = response
-      } else if (response?.choices?.[0]?.message?.content) {
-        aiResponseText = response.choices[0].message.content
-      } else if (response?.content) {
-        aiResponseText = response.content
-      } else if (response?.message?.content) {
-        aiResponseText = response.message.content
-      } else {
-        aiResponseText = JSON.stringify(response)
+      const response = await fetch(`${apiBase}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.8,
+          max_tokens: 1500,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.text()
+        console.error('API error:', response.status, errorData)
+        return NextResponse.json(
+          { error: `API error (${response.status}): ${errorData.slice(0, 200)}`, apiStatus: 'disconnected' },
+          { status: 500 }
+        )
       }
+
+      const data = await response.json()
+      aiResponseText = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.'
     } catch (apiError: unknown) {
       const errMsg = apiError instanceof Error ? apiError.message : 'Unknown error'
-      console.error('AI SDK error:', errMsg)
+      console.error('API fetch error:', errMsg)
       return NextResponse.json(
-        { error: `AI API error: ${errMsg}`, apiStatus: 'disconnected' },
+        { error: `Connection error: ${errMsg}`, apiStatus: 'disconnected' },
         { status: 500 }
       )
     }
