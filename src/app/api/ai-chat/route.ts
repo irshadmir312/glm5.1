@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // ============================================================
-// 🔑 AI CHAT API — Supports GLM (Z.AI) & OpenAI
+// 🔑 AI CHAT API — Uses z-ai-web-dev-sdk (GLM Models - FREE)
 // ============================================================
-// DEPLOYMENT: Set these env vars on Vercel:
-//   AI_API_KEY=your-glm-or-openai-key
+// DEPLOYMENT: Set on Vercel Environment Variables:
+//   AI_API_KEY=your-z-ai-api-key
 //   AI_MODEL=glm-4-flash
-//   AI_API_BASE=https://open.bigmodel.cn/api/paas/v4
-//
-// OR use OpenAI:
-//   AI_API_KEY=sk-your-openai-key
-//   AI_MODEL=gpt-4.1-mini
-//   AI_API_BASE=https://api.openai.com/v1
 // ============================================================
 
 const MODE_PROMPTS: Record<string, string> = {
@@ -106,19 +100,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Get API config from env
-    const apiKey = process.env.AI_API_KEY || process.env.OPENAI_API_KEY
-    const apiBase = process.env.AI_API_BASE || 'https://open.bigmodel.cn/api/paas/v4'
+    const apiKey = process.env.AI_API_KEY
     const model = process.env.AI_MODEL || 'glm-4-flash'
-    const useApi = !!apiKey
 
     // Health check
     if (healthCheck) {
       return NextResponse.json({
         message: 'API health check OK',
-        apiStatus: useApi ? 'connected' : 'disconnected',
+        apiStatus: apiKey ? 'connected' : 'disconnected',
         model,
       })
+    }
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'No API key configured. Set AI_API_KEY on Vercel.', apiStatus: 'disconnected' },
+        { status: 500 }
+      )
     }
 
     // Rate limit
@@ -143,46 +141,29 @@ export async function POST(req: NextRequest) {
     }
     messages.push({ role: 'user', content: message })
 
+    // Use z-ai-web-dev-sdk (handles all API URLs automatically)
     let aiResponseText: string
-
-    if (useApi) {
-      try {
-        const response = await fetch(`${apiBase}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model,
-            messages,
-            temperature: 0.8,
-            max_tokens: 1500,
-            top_p: 0.95,
-          }),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.text()
-          console.error('AI API error:', response.status, errorData)
-          return NextResponse.json(
-            { error: `API error (${response.status}). Check your API key and model name.`, apiStatus: 'disconnected' },
-            { status: 500 }
-          )
-        }
-
-        const data = await response.json()
-        aiResponseText = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.'
-      } catch (apiError) {
-        console.error('AI API fetch error:', apiError)
-        return NextResponse.json(
-          { error: 'Failed to connect to API. Please try again.', apiStatus: 'disconnected' },
-          { status: 500 }
-        )
+    try {
+      const ZAI = (await import('z-ai-web-dev-sdk')).default
+      const zai = await ZAI.create({ apiKey })
+      const response = await zai.chat.completions.create({ messages, model, max_tokens: 1500, temperature: 0.8 })
+      
+      if (typeof response === 'string') {
+        aiResponseText = response
+      } else if (response?.choices?.[0]?.message?.content) {
+        aiResponseText = response.choices[0].message.content
+      } else if (response?.content) {
+        aiResponseText = response.content
+      } else if (response?.message?.content) {
+        aiResponseText = response.message.content
+      } else {
+        aiResponseText = JSON.stringify(response)
       }
-    } else {
+    } catch (apiError: unknown) {
+      const errMsg = apiError instanceof Error ? apiError.message : 'Unknown error'
+      console.error('AI SDK error:', errMsg)
       return NextResponse.json(
-        { error: 'No AI API configured. Set AI_API_KEY on Vercel.', apiStatus: 'disconnected' },
+        { error: `AI API error: ${errMsg}`, apiStatus: 'disconnected' },
         { status: 500 }
       )
     }
