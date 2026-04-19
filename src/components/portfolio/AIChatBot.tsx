@@ -167,7 +167,7 @@ export default function AIChatBot() {
                     </span>
                     {apiStatus === 'connected' && (
                       <span className="flex items-center gap-0.5 text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                        <Wifi className="w-2.5 h-2.5" /> OpenAI
+                        <Wifi className="w-2.5 h-2.5" /> AI Online
                       </span>
                     )}
                     {apiStatus === 'disconnected' && (
@@ -344,7 +344,7 @@ export default function AIChatBot() {
                       </Button>
                     </form>
                     <p className="text-[10px] text-muted-foreground/40 mt-1.5 text-center">
-                      🤖 Powered by OpenAI • Trained on Irshad&apos;s profile
+                      🤖 Powered by AI • Trained on Irshad&apos;s profile
                     </p>
                   </div>
                 </motion.div>
